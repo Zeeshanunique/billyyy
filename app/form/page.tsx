@@ -58,8 +58,12 @@ const CommunityForm = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSubmitStatus('success');
       setFormData({ name: '', email: '', title: '', message: '' });
-    } catch (error) {
+    } catch (error: unknown) {
       setSubmitStatus('error');
+      // Log error or update error message state
+      if (error instanceof Error) {
+        console.error('Form submission failed:', error.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

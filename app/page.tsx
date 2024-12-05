@@ -71,15 +71,12 @@ export default function Home() {
               <Button className="bg-blue-800 text-white hover:bg-blue-700">
                 Join Now
               </Button>
-            {/* <Button className="bg-blue-800 text-white hover:bg-blue-700">
-              Join Now
-            </Button> */}
             </Link>
           </div>
         </section>
 
         {/* Contact Section */}
-        {/* <section className="bg-gradient-to-b from-white to-blue-50 py-16">
+        <section className="bg-gradient-to-b from-white to-blue-50 py-16">
           <div className="max-w-md mx-auto px-6">
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-semibold text-gray-900">Get in Touch</h2>
@@ -90,7 +87,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-        </section> */}
+        </section>
       </main>
       <footer className="mt-20 py-6 border-t">
         <p className="text-center text-sm text-muted-foreground">
