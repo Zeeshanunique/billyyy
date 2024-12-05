@@ -59,7 +59,7 @@ interface DateRangePickerProps {
   setDate: (date: DateRange | undefined) => void
 }
 
-export function DateRangePicker({
+function DateRangePicker({
   className,
   date,
   setDate,
@@ -106,7 +106,7 @@ export function DateRangePicker({
   )
 }
 
-const Analytics = () => {
+export default function Page() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: new Date()
@@ -312,6 +312,4 @@ const Analytics = () => {
       </Tabs>
     </div>
   );
-};
-
-export default Analytics;
+}
