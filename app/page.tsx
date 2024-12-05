@@ -29,7 +29,7 @@ export default function Home() {
                     variant="secondary"
                     className="hover:bg-white hover:text-blue-800"
                   >
-                    Let's Chat
+                    Let&#39;s Chat
                   </Button>
                 </Link>
               </div>
@@ -79,10 +79,10 @@ export default function Home() {
         <section className="bg-gradient-to-b from-white to-blue-50 py-16">
           <div className="max-w-md mx-auto px-6">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold text-gray-900">Get in Touch</h2>
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
-              >
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Get in Touch
+              </h2>
+              <Button className="bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
                 Contact Us
               </Button>
             </div>
