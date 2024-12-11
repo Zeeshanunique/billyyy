@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const form = await Form.create(body);
     return NextResponse.json({ success: true, data: form });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Failed to submit form' }, { status: 500 });
   }
 }

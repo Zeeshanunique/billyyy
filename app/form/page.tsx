@@ -46,8 +46,12 @@ export default function ContactForm() {
       
       setSuccess(true);
       setFormData({ name: '', email: '', title: '', message: '' });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,7 @@ export default function ContactForm() {
       <Card className="max-w-2xl mx-auto p-8 shadow-xl">
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900">Contact Us</h2>
-          <p className="mt-2 text-gray-600">We'd love to hear from you</p>
+          <p className="mt-2 text-gray-600">We&apos;d love to hear from you</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

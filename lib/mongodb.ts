@@ -12,14 +12,22 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
+// Use modern module augmentation
 declare global {
-  var mongoose: MongooseCache;
+  interface GlobalThis {
+    mongoose: MongooseCache;
+  }
 }
 
-let cached: MongooseCache = global.mongoose;
+// Create a type-safe global reference
+const globalWithMongoose = globalThis as typeof globalThis & {
+  mongoose: MongooseCache;
+};
+
+let cached: MongooseCache = globalWithMongoose.mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = globalWithMongoose.mongoose = { conn: null, promise: null };
 }
 
 export async function connectDB() {
@@ -27,7 +35,11 @@ export async function connectDB() {
     return cached.conn;
   }
 
-  cached.promise = mongoose.connect(MONGODB_URI);
+  if (!process.env.MONGODB_URI) {
+    throw new Error('Please define MONGODB_URI in your environment');
+  }
+
+  cached.promise = mongoose.connect(process.env.MONGODB_URI);
   cached.conn = await cached.promise;
   return cached.conn;
 }
