@@ -29,8 +29,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { addDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
 const mockTimeData = [
   { month: 'Jan', incidents: 65 }, { month: 'Feb', incidents: 59 },
@@ -56,71 +54,56 @@ const cityData = [
 ];
 
 interface DateRangePickerProps {
-  onChange: (range: DateRange | undefined) => void;
+  className?: string
+  date: DateRange | undefined
+  setDate: (date: DateRange | undefined) => void
 }
 
-export function EnhancedDateRangePicker({ onChange }: DateRangePickerProps) {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 7)
-  });
-
-  const predefinedRanges = {
-    'Today': {
-      from: new Date(),
-      to: new Date()
-    },
-    'Last 7 Days': {
-      from: addDays(new Date(), -7),
-      to: new Date()
-    },
-    'Last 30 Days': {
-      from: addDays(new Date(), -30),
-      to: new Date()
-    },
-    'This Month': {
-      from: startOfMonth(new Date()),
-      to: endOfMonth(new Date())
-    },
-    'Last Month': {
-      from: startOfMonth(subMonths(new Date(), 1)),
-      to: endOfMonth(subMonths(new Date(), 1))
-    }
-  };
-
-  const handleRangeSelect = (range: string) => {
-    const newRange = predefinedRanges[range as keyof typeof predefinedRanges];
-    setDate(newRange);
-    onChange(newRange);
-  };
-
+function DateRangePicker({
+  className,
+  date,
+  setDate,
+}: DateRangePickerProps) {
   return (
-    <div className="grid gap-4">
-      <Select onValueChange={handleRangeSelect}>
-        <SelectTrigger>
-          Select Range
-        </SelectTrigger>
-        <SelectContent>
-          {Object.keys(predefinedRanges).map((range) => (
-            <SelectItem key={range} value={range}>
-              {range}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Calendar
-        mode="range"
-        selected={date}
-        onSelect={(newDate) => {
-          setDate(newDate);
-          onChange(newDate);
-        }}
-        numberOfMonths={2}
-        disabled={{ after: new Date() }}
-      />
+    <div className={cn("grid gap-2", className)}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} -{" "}
+                  {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(date.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={setDate}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
-  );
+  )
 }
 
 export default function Page() {
@@ -133,7 +116,7 @@ export default function Page() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Cyberbullying Analytics</h1>
-        <EnhancedDateRangePicker onChange={setDateRange} />
+        <DateRangePicker date={dateRange} setDate={setDateRange} />
       </div>
 
       {/* Statistics Grid */}

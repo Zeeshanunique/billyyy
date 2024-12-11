@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface FormData {
   name: string;
@@ -14,149 +15,170 @@ interface FormData {
   message: string;
 }
 
-const CommunityForm = () => {
+export default function ContactForm() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     title: '',
     message: ''
   });
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
-
-  const validateForm = () => {
-    const newErrors: Partial<FormData> = {};
-    
-    if (!formData.name) newErrors.name = 'Name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
-    }
-    if (!formData.title) newErrors.title = 'Title is required';
-    if (!formData.message) newErrors.message = 'Message is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name as keyof FormData]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
+    setLoading(true);
+    setError('');
+    
     try {
-      // Add your form submission logic here
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSubmitStatus('success');
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+      
+      setSuccess(true);
       setFormData({ name: '', email: '', title: '', message: '' });
-    } catch (error: unknown) {
-      setSubmitStatus('error');
-      // Log error or update error message state
-      if (error instanceof Error) {
-        console.error('Form submission failed:', error.message);
-      }
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Card className="max-w-xl mx-auto p-6 my-8">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Name</label>
-          <Input
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your name"
-            className={errors.name ? "border-red-500" : ""}
-          />
-          {errors.name && (
-            <p className="text-sm text-red-500">{errors.name}</p>
-          )}
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="max-w-2xl mx-auto p-8 shadow-xl">
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900">Contact Us</h2>
+          <p className="mt-2 text-gray-600">We'd love to hear from you</p>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <Input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="your@email.com"
-            className={errors.email ? "border-red-500" : ""}
-          />
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email}</p>
-          )}
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="font-medium">
+                Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="name"
+                required
+                placeholder="Your name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="w-full transition duration-150 ease-in-out"
+              />
+            </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Title</label>
-          <Input
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Subject of your message"
-            className={errors.title ? "border-red-500" : ""}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500">{errors.title}</p>
-          )}
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-medium">
+                Email <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                placeholder="your@email.com"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full transition duration-150 ease-in-out"
+              />
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Message</label>
-          <Textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Share your thoughts..."
-            className={errors.message ? "border-red-500" : ""}
-            rows={5}
-          />
-          {errors.message && (
-            <p className="text-sm text-red-500">{errors.message}</p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="title" className="font-medium">
+              Subject <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="title"
+              required
+              placeholder="What is this about?"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              className="w-full transition duration-150 ease-in-out"
+            />
+          </div>
 
-        {submitStatus && (
-          <Alert className={submitStatus === 'success' ? 'bg-green-50' : 'bg-red-50'}>
-            <AlertDescription>
-              {submitStatus === 'success' 
-                ? 'Thank you for your submission!' 
-                : 'Something went wrong. Please try again.'}
+          <div className="space-y-2">
+            <Label htmlFor="message" className="font-medium">
+              Message <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="message"
+              required
+              placeholder="Your message here..."
+              value={formData.message}
+              onChange={(e) => setFormData({...formData, message: e.target.value})}
+              className="w-full h-32 transition duration-150 ease-in-out"
+            />
+          </div>
+
+          <div className="pt-4">
+            <Button 
+              disabled={loading} 
+              type="submit" 
+              className="w-full py-6 text-lg font-semibold transition-colors duration-150"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="animate-spin mr-2" />
+                  Sending...
+                </div>
+              ) : 'Send Message'}
+            </Button>
+          </div>
+        </form>
+
+        {error && (
+          <Alert variant="destructive" className="mt-6">
+            <AlertDescription className="flex items-center">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              {error}
             </AlertDescription>
           </Alert>
         )}
 
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            'Submit'
-          )}
-        </Button>
-      </form>
-    </Card>
+        {success && (
+          <Alert className="mt-6 bg-green-50 border-green-200">
+            <AlertDescription className="flex items-center text-green-800">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Message sent successfully!
+            </AlertDescription>
+          </Alert>
+        )}
+      </Card>
+    </div>
   );
-};
-
-export default CommunityForm;
+}
